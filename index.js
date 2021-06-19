@@ -1,6 +1,13 @@
 'use strict';
 
 // -------------------------------
+// Header
+
+document.querySelector('.header__theme-btn').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+
+// -------------------------------
 // Game filed
 
 class GameField {
@@ -8,21 +15,33 @@ class GameField {
     const { size } = params;
 
     this.size = size;
+    this.areaSize = size ** 2;
     this.element = document.querySelector('.game-field');
+    this.allBlocks = undefined;
+
+    this.fill();
   }
 
   fill() {
-    for (let i = 1; i <= this.size ** 2; i += 1) {
+    for (let i = 1; i <= this.areaSize; i += 1) {
       const block = document.createElement('div');
 
       block.classList.add('block');
       this.element.appendChild(block);
     }
+
+    this.allBlocks = this.element.children;
   }
 
   clean() {}
   generateRandomStuff() {}
-  generatePoint() {}
+
+  generatePoint() {
+    // -1 because array's index starts from zero
+    const randomPosition = Math.ceil(Math.random() * this.areaSize) - 1;
+
+    this.allBlocks[randomPosition].classList.add('point');
+  }
 }
 
 // -------------------------------
@@ -32,7 +51,7 @@ class Snake {
   constructor(params) {
     const { life, field, speed } = params;
     // -1 because array's index starts from zero
-    const startPosition = Math.ceil(field.size ** 2 / 2) - 1;
+    const startPosition = Math.ceil(field.areaSize / 2) - 1;
 
     this.speed = speed; // ms
     this.life = life;
@@ -42,6 +61,7 @@ class Snake {
     this.bodyItems = [startPosition];
     this.movement = 'up';
     this.score = 0;
+    this.movingIntervalId = undefined;
 
     this.allBlocks[startPosition].classList.add('snake-head');
     document.querySelector('.header__score b').textContent = this.score;
@@ -55,25 +75,82 @@ class Snake {
     console.groupEnd();
   }
 
-  start() {
+  begin() {
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'w') this.moveUp();
-      if (event.key === 's') this.moveDown();
-      if (event.key === 'a') this.moveLeft();
-      if (event.key === 'd') this.moveRight();
+      const key = event.key;
+      const prevMovement = this.movement;
+
+      if (key === 'w' || key === 'ц' || key === 'ArrowUp') {
+        this.movement = 'up';
+        this.moveUp();
+      }
+
+      if (key === 's' || key === 'ы' || key === 'ArrowDown') {
+        this.movement = 'down';
+        this.moveDown();
+      }
+
+      if (key === 'a' || key === 'ф' || key === 'ArrowLeft') {
+        this.movement = 'left';
+        this.moveLeft();
+      }
+
+      if (key === 'd' || key === 'в' || key === 'ArrowRight') {
+        this.movement = 'right';
+        this.moveRight();
+      }
+
+      if (key === 'Escape') this.lose();
+
+      this.startSnakeMovement({
+        key,
+        prevMovement,
+      });
     });
   }
 
-  losing() {
-    this.score = 0;
-    this.bodyItems = [this.startPosition];
-    this.allBlocks[startPosition].classList.add('snake-head');
+  startSnakeMovement(params) {
+    const { key, prevMovement } = params;
+    if (
+      [
+        'w',
+        's',
+        'a',
+        'd',
+        'ц',
+        'ы',
+        'ф',
+        'в',
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+      ].includes(key)
+    ) {
+      if (!this.movingIntervalId || this.movement !== prevMovement) {
+        clearInterval(this.movingIntervalId);
 
-    // TODO: remove a listener from the 'start' method after game losing
+        this.movingIntervalId = setInterval(() => {
+          document.dispatchEvent(new KeyboardEvent('keydown', { key }));
+        }, this.speed);
+      }
+    }
+  }
+
+  lose() {
+    this.score = 0;
+    // at first we have to make a real array to be able to change the blocks
+    [...this.allBlocks].map((block) => block.classList.remove('snake'));
+    document.querySelector('.snake-head').classList.remove('snake-head');
+    // save only one head block
+    this.bodyItems = [this.startPosition];
+    // move the head on start
+    this.allBlocks[this.startPosition].classList.add('snake-head');
+
+    clearInterval(this.movingIntervalId);
   }
 
   moveUp() {
-    this.movement = 'up';
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] -= this.field.size),
@@ -82,7 +159,6 @@ class Snake {
   }
 
   moveDown() {
-    this.movement = 'down';
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] += this.field.size),
@@ -91,7 +167,6 @@ class Snake {
   }
 
   moveLeft() {
-    this.movement = 'left';
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] -= 1),
@@ -100,7 +175,6 @@ class Snake {
   }
 
   moveRight() {
-    this.movement = 'right';
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] += 1),
@@ -111,9 +185,17 @@ class Snake {
   updateSnakePosition(params) {
     const { prevHeadPosition, currentHeadPosition } = params;
 
-    this.bodyItems[0] = currentHeadPosition;
     this.allBlocks[prevHeadPosition].classList.remove('snake-head');
     this.allBlocks[currentHeadPosition].classList.add('snake-head');
+
+    if (this.bodyItems.length > 1) {
+      // delete the last snake's block
+      this.allBlocks[this.bodyItems.length - 1].classList.remove('snake');
+      this.allBlocks[prevHeadPosition].classList.add('snake');
+    }
+
+    this.bodyItems.unshift(currentHeadPosition);
+    this.bodyItems.length -= 1;
   }
 
   increaseScore(points) {
@@ -125,18 +207,16 @@ class Snake {
 // Instances
 
 const gameField = new GameField({
-  size: 9,
+  size: 13,
 });
-
-gameField.fill();
 
 const snake = new Snake({
   field: gameField,
   life: 3,
-  speed: 1000,
+  speed: 500,
 });
 
-snake.start();
+snake.begin();
 
 // -------------------------------
 // Footer

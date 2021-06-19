@@ -1,3 +1,3 @@
 # 🐍 Snake in the browser
 
-👉 [TRY IT]()
+👉 [TRY IT](https://noteternal.github.io/snake/)
