@@ -1,9 +1,9 @@
 @font-face {
-  font-family: 'Anton';
+  font-family: 'Akaya Kanadaka';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(https://fonts.gstatic.com/s/anton/v15/1Ptgg87LROyAm3Kz-C8.woff2)
+  src: url(https://fonts.gstatic.com/s/akayakanadaka/v4/N0bM2S5CPO5oOQqvazoRRb-8-MfWQZQ.woff2)
     format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
@@ -15,15 +15,12 @@
 /* --------------------------------- */
 
 :root {
-  --gray: #6c757d;
   --light: #f8f9fa;
   --white: #fff;
   --dark: #212529;
   --black: #000;
-  --transparent-black: #0001;
+  --transparent-black: #0003;
   --transparent-white: #fff5;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
 }
 
 html {
@@ -61,7 +58,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  font-family: 'Anton', 'Courier New', Courier, monospace;
+  font-family: 'Akaya Kanadaka', 'Courier New', Courier, monospace;
   color: var(--color);
 
   background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
@@ -83,24 +80,24 @@ body.dark {
 
 header {
   width: 100%;
-  padding: 1em;
+  padding: 1.2em;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  border-radius: 0 0 1em 1em;
+  border-radius: 0 0 0.8em 0.8em;
   box-shadow: 0 0.5em 1em var(--transparent-black);
   background-color: var(--background-color);
 }
 
 .header__title {
-  margin: 0em 0;
+  margin: 0 0 0.2em;
   font-size: 2em;
 }
 
 .header__description {
   margin: 0;
   padding: 0;
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 .header__theme-btn,
@@ -121,27 +118,45 @@ header {
   width: 40em;
   height: 40em;
   display: grid;
-  grid-template-columns: repeat(13, 1fr);
-  grid-template-rows: repeat(13, 1fr);
+  grid-template-columns: repeat(11, 1fr);
+  grid-template-rows: repeat(11, 1fr);
   column-gap: 0.3em;
   row-gap: 0.3em;
   border-radius: 1em;
 }
 
 .game-field .block {
-  border-radius: 1em;
+  border-radius: 0.8em;
   box-shadow: 0 0 1em var(--transparent-black);
   background-color: var(--field-block-background);
+  transition: 0.5s;
 }
 
+.game-field .block.tail,
 .game-field .block.snake,
 .game-field .block.snake-head,
+.game-field .block.point.tail,
 .game-field .block.point.snake,
 .game-field .block.point.snake-head {
   position: relative;
-  border-radius: 1.4em;
   transform: scale(0.9);
+  box-shadow: inset 0 0 0.4em var(--color);
   background-color: var(--snake-color);
+  transition: 0.5s;
+}
+
+.game-field .block.snake-head,
+.game-field .block.point.snake-head {
+  transition: 0.1s;
+}
+
+.game-field .block.tail {
+  transform: scale(0.7);
+}
+
+.game-field .block.tail,
+.game-field .block.snake {
+  opacity: 0.9;
 }
 
 .game-field .block.snake-head::before {
