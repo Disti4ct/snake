@@ -33,8 +33,9 @@ class GameField {
     this.allBlocks = this.element.children;
   }
 
-  clean() {}
-  generateRandomStuff() {}
+  clean() {
+    [...this.allBlocks].map((block) => block.classList.remove('point'));
+  }
 
   generatePoint() {
     // -1 because array's index starts from zero
@@ -42,6 +43,8 @@ class GameField {
 
     this.allBlocks[randomPosition].classList.add('point');
   }
+
+  generateRandomStuff() {}
 }
 
 // -------------------------------
@@ -80,32 +83,68 @@ class Snake {
       const key = event.key;
       const prevMovement = this.movement;
 
-      if (key === 'w' || key === 'ц' || key === 'ArrowUp') {
-        this.movement = 'up';
-        this.moveUp();
+      const onUp = key === 'w' || key === 'ц' || key === 'ArrowUp';
+      const onDown = key === 's' || key === 'ы' || key === 'ArrowDown';
+      const onLeft = key === 'a' || key === 'ф' || key === 'ArrowLeft';
+      const onRight = key === 'd' || key === 'в' || key === 'ArrowRight';
+
+      if (onUp || onDown || onLeft || onRight) {
+        this.pointGeneration();
       }
 
-      if (key === 's' || key === 'ы' || key === 'ArrowDown') {
-        this.movement = 'down';
-        this.moveDown();
-      }
-
-      if (key === 'a' || key === 'ф' || key === 'ArrowLeft') {
-        this.movement = 'left';
-        this.moveLeft();
-      }
-
-      if (key === 'd' || key === 'в' || key === 'ArrowRight') {
-        this.movement = 'right';
-        this.moveRight();
-      }
-
-      if (key === 'Escape') this.lose();
-
-      this.startSnakeMovement({
-        key,
+      this.setSnakeMovement({
         prevMovement,
+        event,
+        events: {
+          onUp,
+          onDown,
+          onLeft,
+          onRight,
+        },
       });
+    });
+  }
+
+  pointGeneration() {
+    const pointBlock = [...this.allBlocks].find((block) =>
+      [...block.classList].includes('point')
+    );
+
+    if (!pointBlock) {
+      this.field.generatePoint();
+    }
+  }
+
+  setSnakeMovement(params) {
+    const { event, events, prevMovement } = params;
+
+    if (events.onUp) {
+      this.movement = 'up';
+      this.moveUp();
+    }
+
+    if (events.onDown) {
+      this.movement = 'down';
+      this.moveDown();
+    }
+
+    if (events.onLeft) {
+      this.movement = 'left';
+      this.moveLeft();
+    }
+
+    if (events.onRight) {
+      this.movement = 'right';
+      this.moveRight();
+    }
+
+    if (event.key === 'Escape') {
+      this.lose();
+    }
+
+    this.startSnakeMovement({
+      key: event.key,
+      prevMovement,
     });
   }
 
@@ -155,7 +194,7 @@ class Snake {
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] -= this.field.size),
     });
-    this.logCoordinates('up');
+    // this.logCoordinates('up');
   }
 
   moveDown() {
@@ -163,7 +202,7 @@ class Snake {
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] += this.field.size),
     });
-    this.logCoordinates('down');
+    // this.logCoordinates('down');
   }
 
   moveLeft() {
@@ -171,7 +210,7 @@ class Snake {
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] -= 1),
     });
-    this.logCoordinates('left');
+    // this.logCoordinates('left');
   }
 
   moveRight() {
@@ -179,27 +218,54 @@ class Snake {
       prevHeadPosition: this.bodyItems[0],
       currentHeadPosition: (this.bodyItems[0] += 1),
     });
-    this.logCoordinates('right');
+    // this.logCoordinates('right');
   }
 
   updateSnakePosition(params) {
     const { prevHeadPosition, currentHeadPosition } = params;
-
+    // move the head forward
     this.allBlocks[prevHeadPosition].classList.remove('snake-head');
     this.allBlocks[currentHeadPosition].classList.add('snake-head');
+    // update snake block indexes
+    this.bodyItems.unshift(currentHeadPosition);
+    this.bodyItems[1] = prevHeadPosition;
+    this.bodyItems.length -= 1;
 
     if (this.bodyItems.length > 1) {
-      // delete the last snake's block
-      this.allBlocks[this.bodyItems.length - 1].classList.remove('snake');
-      this.allBlocks[prevHeadPosition].classList.add('snake');
+      this.bodyItems.map((bodyBlockIndex, index) => {
+        // already moved the snake's head
+        if (!index) {
+          this.allBlocks[bodyBlockIndex].classList.add('snake');
+        }
+      });
+
+      const lastBodyBlockIndex = this.bodyItems[this.bodyItems.length - 1];
+
+      this.allBlocks[lastBodyBlockIndex].classList.remove('snake');
     }
 
-    this.bodyItems.unshift(currentHeadPosition);
-    this.bodyItems.length -= 1;
+    const currentBlockClasses = this.allBlocks[currentHeadPosition].classList;
+    const gotPoint = [...currentBlockClasses].includes('point');
+
+    if (gotPoint) {
+      this.increaseScore(1);
+      this.increaseSnake({
+        currentHeadPosition,
+      });
+      currentBlockClasses.remove('point');
+      this.field.generatePoint();
+    }
   }
 
   increaseScore(points) {
     this.score += points;
+    document.querySelector('.header__score b').textContent = this.score;
+  }
+
+  increaseSnake(params) {
+    const { currentHeadPosition } = params;
+
+    this.bodyItems.push(currentHeadPosition);
   }
 }
 
@@ -213,7 +279,7 @@ const gameField = new GameField({
 const snake = new Snake({
   field: gameField,
   life: 3,
-  speed: 500,
+  speed: 400,
 });
 
 snake.begin();
