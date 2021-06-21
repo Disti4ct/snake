@@ -34,17 +34,39 @@ class GameField {
   }
 
   clean() {
-    [...this.allBlocks].map((block) => block.classList.remove('point'));
+    // at first we have to make a real array to be able to change the blocks
+    [...this.allBlocks].map((block) => (block.className = 'block'));
   }
 
-  generatePoint() {
+  getRandomPositionInfo() {
     // -1 because array's index starts from zero
     const randomPosition = Math.ceil(Math.random() * this.areaSize) - 1;
+    const randomPositionClasses = [...this.allBlocks[randomPosition].classList];
 
-    this.allBlocks[randomPosition].classList.add('point');
+    return {
+      randomPosition,
+      randomPositionClasses,
+    };
   }
 
-  generateRandomStuff() {}
+  generateNewStuff(params) {
+    const { className } = params;
+    let canNotAddStuff = true;
+
+    while (canNotAddStuff) {
+      const { randomPosition, randomPositionClasses } =
+        this.getRandomPositionInfo();
+
+      // add a new point only for empty blocks
+      if (
+        randomPositionClasses.length === 1 &&
+        randomPositionClasses.includes('block')
+      ) {
+        canNotAddStuff = false;
+        this.allBlocks[randomPosition].classList.add(className);
+      }
+    }
+  }
 }
 
 // -------------------------------
@@ -56,7 +78,8 @@ class Snake {
     // -1 because array's index starts from zero
     const startPosition = Math.ceil(field.areaSize / 2) - 1;
 
-    this.speed = speed; // ms
+    this.sourceSpeed = speed; // ms
+    this.speed = speed; // increase this indicator
     this.life = life;
     this.field = field;
     this.allBlocks = field.element.children;
@@ -120,7 +143,9 @@ class Snake {
     );
 
     if (!pointBlock) {
-      this.field.generatePoint();
+      this.field.generateNewStuff({
+        className: 'point',
+      });
     }
   }
 
@@ -190,22 +215,16 @@ class Snake {
   }
 
   lose() {
-    this.score = 0;
-    // at first we have to make a real array to be able to change the blocks
-    [...this.allBlocks].map((block) => block.classList.remove('snake'));
+    this.setScore(0);
+    this.speed = this.sourceSpeed;
 
-    if (document.querySelector('.tail')) {
-      document.querySelector('.tail').classList.remove('tail');
-    }
+    clearInterval(this.movingIntervalId);
 
-    document.querySelector('.snake-head').classList.remove('snake-head');
+    this.field.clean();
     // save only one head block
     this.bodyItems = [this.startPosition];
     // move the head on start
     this.allBlocks[this.startPosition].classList.add('snake-head');
-    this.field.clean();
-
-    clearInterval(this.movingIntervalId);
   }
 
   moveUp() {
@@ -243,14 +262,10 @@ class Snake {
   updateSnakePosition(params) {
     const { prevHeadPosition, currentHeadPosition } = params;
 
-    // TODO: temporarily fix. User went beyond the field
-    if (
-      !this.allBlocks[prevHeadPosition] ||
-      !this.allBlocks[currentHeadPosition]
-    ) {
-      this.lose();
-    }
-
+    this.checkGameLoss({
+      prevHeadPosition,
+      currentHeadPosition,
+    });
     // move the head forward
     this.allBlocks[prevHeadPosition].classList.remove('snake-head');
     this.allBlocks[currentHeadPosition].classList.add('snake-head');
@@ -278,18 +293,52 @@ class Snake {
     const gotPoint = [...currentBlockClasses].includes('point');
 
     if (gotPoint) {
-      this.increaseScore(1);
+      this.setScore(this.score + 1);
       this.increaseSnake({
         currentHeadPosition,
       });
       currentBlockClasses.remove('point');
-      this.field.generatePoint();
+      this.field.generateNewStuff({
+        className: 'point',
+      });
     }
   }
 
-  increaseScore(points) {
-    this.score += points;
+  checkGameLoss(params) {
+    const { prevHeadPosition, currentHeadPosition } = params;
+
+    if (
+      // TODO: temporarily fix. User went beyond the field
+      !this.allBlocks[prevHeadPosition] ||
+      !this.allBlocks[currentHeadPosition]
+    ) {
+      this.lose();
+    }
+
+    const headBlockClasses = [...this.allBlocks[currentHeadPosition].classList];
+    const headInTheWrongPosition =
+      headBlockClasses.includes('barrier') ||
+      this.bodyItems.slice(1).find((index) => index === currentHeadPosition);
+
+    if (headInTheWrongPosition) {
+      this.lose();
+    }
+  }
+
+  setScore(newScore) {
+    this.score = newScore;
     document.querySelector('.header__score b').textContent = this.score;
+
+    if (this.score && !(this.score % 5)) {
+      this.increaseSpeed();
+      this.field.generateNewStuff({
+        className: 'barrier',
+      });
+    }
+  }
+
+  increaseSpeed() {
+    this.speed -= 10;
   }
 
   increaseSnake(params) {
