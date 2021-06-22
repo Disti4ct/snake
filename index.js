@@ -1,14 +1,6 @@
 'use strict';
 
 // ***************************************
-// *************  Header  ****************
-// ***************************************
-
-document.querySelector('.header__theme-btn').addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-});
-
-// ***************************************
 // **********  Game field  ***************
 // ***************************************
 
@@ -29,6 +21,7 @@ class GameField {
       const block = document.createElement('div');
 
       block.classList.add('block');
+      // block.classList.add('empty');
       this.element.appendChild(block);
     }
 
@@ -350,6 +343,7 @@ class Snake {
     const headBlockClasses = [...this.allBlocks[currentHeadPosition].classList];
     const headInTheWrongPosition =
       headBlockClasses.includes('barrier') ||
+      headBlockClasses.includes('empty') ||
       // snake's head on the one of her body blocks
       this.bodyItems.slice(1).find((index) => currentHeadPosition === index);
 
@@ -367,11 +361,14 @@ class Snake {
       this.field.generateNewStuff({
         className: 'barrier',
       });
+      this.field.generateNewStuff({
+        className: 'empty',
+      });
     }
   }
 
   increaseSpeed() {
-    this.speed -= 10;
+    this.speed -= 5;
   }
 
   increaseSnake(params) {
@@ -392,7 +389,7 @@ const gameField = new GameField({
 const snake = new Snake({
   field: gameField,
   life: 3,
-  speed: 220,
+  speed: 200,
 });
 
 snake.begin();
