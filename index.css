@@ -64,7 +64,7 @@ body {
   letter-spacing: 0.1em;
   color: var(--color);
   transition: 0.2s;
-  background-image: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
 }
 
 body.dark {
@@ -132,14 +132,14 @@ header {
   width: 42em;
   height: 42em;
   display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  grid-template-rows: repeat(11, 1fr);
-  column-gap: 0.3em;
-  row-gap: 0.3em;
+  grid-template-columns: repeat(17, 1fr);
+  grid-template-rows: repeat(17, 1fr);
+  column-gap: 0.2em;
+  row-gap: 0.2em;
 }
 
 .game-field .block {
-  border-radius: 0.8em;
+  border-radius: 0.6em;
   box-shadow: 0 0 1em var(--transparent-black);
   background-color: var(--field-block-background);
   transition: 0.4s;
@@ -151,26 +151,18 @@ header {
 .game-field .block.snake-head,
 .game-field .block.point.snake-head {
   position: relative;
-  transform: scale(0.9);
-  box-shadow: 0 0 0.5em var(--color);
+  transform: scale(0.8);
   background-color: var(--snake-color);
-  transition: 0.3s;
+  transition: 0.28s;
 }
 
 .game-field .block.snake-head,
 .game-field .block.point.snake-head {
-  border-radius: 1em;
-  transition: 0.1s;
+  transition: 0.06s;
 }
 
 .game-field .block.tail {
-  border-radius: 1em;
-  transform: scale(0.7);
-}
-
-.game-field .block.tail,
-.game-field .block.snake {
-  opacity: 0.9;
+  transform: scale(0.6);
 }
 
 .game-field .block.snake-head::before {
@@ -186,9 +178,11 @@ header {
 }
 
 .game-field .block.barrier {
-  transform: scale(0.9);
+  border-radius: 50%;
   box-shadow: inset 0 0 1em var(--color);
   background-color: var(--dangerous-color);
+  animation-name: blink;
+  animation: 1s blink infinite;
 }
 
 .game-field .block.point {
@@ -196,6 +190,16 @@ header {
   border-radius: 50%;
   box-shadow: inset 0 0 1em var(--color);
   background-color: var(--point-color);
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(0.7);
+  }
 }
 
 /* --------------------------------- */

@@ -1,14 +1,16 @@
 'use strict';
 
-// -------------------------------
-// Header
+// ***************************************
+// *************  Header  ****************
+// ***************************************
 
 document.querySelector('.header__theme-btn').addEventListener('click', () => {
   document.body.classList.toggle('dark');
 });
 
-// -------------------------------
-// Game filed
+// ***************************************
+// **********  Game field  ***************
+// ***************************************
 
 class GameField {
   constructor(params) {
@@ -69,8 +71,9 @@ class GameField {
   }
 }
 
-// -------------------------------
-// Snake
+// ***************************************
+// *************  Snake  *****************
+// ***************************************
 
 class Snake {
   constructor(params) {
@@ -228,33 +231,70 @@ class Snake {
   }
 
   moveUp() {
+    let currentHeadPosition = this.bodyItems[0] - this.field.size;
+    const firstBlockInTheFirstRow = 0;
+
+    if (currentHeadPosition === 0) {
+      currentHeadPosition += this.field.areaSize - this.field.size;
+    } else if (
+      currentHeadPosition + this.field.size >= firstBlockInTheFirstRow &&
+      currentHeadPosition + this.field.size <= this.field.size
+    ) {
+      currentHeadPosition += this.field.areaSize;
+    }
+
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
-      currentHeadPosition: (this.bodyItems[0] -= this.field.size),
+      currentHeadPosition,
     });
     // this.logCoordinates('up');
   }
 
   moveDown() {
+    let currentHeadPosition = this.bodyItems[0] + this.field.size;
+    const firstBlockInTheLastRow = this.field.areaSize - this.field.size;
+
+    if (
+      currentHeadPosition - this.field.size >= firstBlockInTheLastRow &&
+      currentHeadPosition - this.field.size <= this.field.areaSize
+    ) {
+      currentHeadPosition %= this.field.size;
+    }
+
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
-      currentHeadPosition: (this.bodyItems[0] += this.field.size),
+      currentHeadPosition,
     });
     // this.logCoordinates('down');
   }
 
   moveLeft() {
+    let currentHeadPosition = this.bodyItems[0] - 1;
+    // TODO: delete magic numbers
+    if (
+      (currentHeadPosition + 2) % this.field.size === 1 ||
+      currentHeadPosition + 1 === 0
+    ) {
+      currentHeadPosition += this.field.size;
+    }
+
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
-      currentHeadPosition: (this.bodyItems[0] -= 1),
+      currentHeadPosition,
     });
     // this.logCoordinates('left');
   }
 
   moveRight() {
+    let currentHeadPosition = this.bodyItems[0] + 1;
+
+    if (!(currentHeadPosition % this.field.size)) {
+      currentHeadPosition -= this.field.size;
+    }
+
     this.updateSnakePosition({
       prevHeadPosition: this.bodyItems[0],
-      currentHeadPosition: (this.bodyItems[0] += 1),
+      currentHeadPosition,
     });
     // this.logCoordinates('right');
   }
@@ -262,10 +302,10 @@ class Snake {
   updateSnakePosition(params) {
     const { prevHeadPosition, currentHeadPosition } = params;
 
-    this.checkGameLoss({
-      prevHeadPosition,
-      currentHeadPosition,
-    });
+    // this.checkGameLoss({
+    //   prevHeadPosition,
+    //   currentHeadPosition,
+    // });
     // move the head forward
     this.allBlocks[prevHeadPosition].classList.remove('snake-head');
     this.allBlocks[currentHeadPosition].classList.add('snake-head');
@@ -318,7 +358,8 @@ class Snake {
     const headBlockClasses = [...this.allBlocks[currentHeadPosition].classList];
     const headInTheWrongPosition =
       headBlockClasses.includes('barrier') ||
-      this.bodyItems.slice(1).find((index) => index === currentHeadPosition);
+      // snake's head on the one of her body blocks
+      this.bodyItems.slice(1).find((index) => currentHeadPosition === index);
 
     if (headInTheWrongPosition) {
       this.lose();
@@ -348,11 +389,12 @@ class Snake {
   }
 }
 
-// -------------------------------
-// Instances
+// ***************************************
+// **********  Instances  ****************
+// ***************************************
 
 const gameField = new GameField({
-  size: 11,
+  size: 17,
 });
 
 const snake = new Snake({
@@ -363,8 +405,9 @@ const snake = new Snake({
 
 snake.begin();
 
-// -------------------------------
-// Footer
+// ***************************************
+// ************  Footer  *****************
+// ***************************************
 
 document.querySelector(
   'footer .copyright'
