@@ -302,10 +302,10 @@ class Snake {
   updateSnakePosition(params) {
     const { prevHeadPosition, currentHeadPosition } = params;
 
-    // this.checkGameLoss({
-    //   prevHeadPosition,
-    //   currentHeadPosition,
-    // });
+    this.checkGameLoss({
+      prevHeadPosition,
+      currentHeadPosition,
+    });
     // move the head forward
     this.allBlocks[prevHeadPosition].classList.remove('snake-head');
     this.allBlocks[currentHeadPosition].classList.add('snake-head');
@@ -345,15 +345,7 @@ class Snake {
   }
 
   checkGameLoss(params) {
-    const { prevHeadPosition, currentHeadPosition } = params;
-
-    if (
-      // TODO: temporarily fix. User went beyond the field
-      !this.allBlocks[prevHeadPosition] ||
-      !this.allBlocks[currentHeadPosition]
-    ) {
-      this.lose();
-    }
+    const { currentHeadPosition } = params;
 
     const headBlockClasses = [...this.allBlocks[currentHeadPosition].classList];
     const headInTheWrongPosition =
