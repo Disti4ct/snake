@@ -21,7 +21,6 @@ class GameField {
       const block = document.createElement('div');
 
       block.classList.add('block');
-      // block.classList.add('empty');
       this.element.appendChild(block);
     }
 
@@ -295,31 +294,16 @@ class Snake {
   updateSnakePosition(params) {
     const { prevHeadPosition, currentHeadPosition } = params;
 
-    this.checkGameLoss({
+    const isLoss = this.checkGameLoss({
       prevHeadPosition,
       currentHeadPosition,
     });
-    // move the head forward
-    this.allBlocks[prevHeadPosition].classList.remove('snake-head');
-    this.allBlocks[currentHeadPosition].classList.add('snake-head');
-    // update snake block indexes
-    this.bodyItems.unshift(currentHeadPosition);
-    this.bodyItems[1] = prevHeadPosition;
 
-    const deletedBlockIndex = this.bodyItems[this.bodyItems.length - 1];
+    if (isLoss) return;
 
-    this.bodyItems.length -= 1;
-
-    this.allBlocks[deletedBlockIndex].classList.remove('snake');
-    this.allBlocks[deletedBlockIndex].classList.remove('tail');
-
-    // start from 1 because we've already moved the snake's head
-    this.bodyItems.slice(1).map((bodyBlockIndex, index) => {
-      if (index < this.bodyItems.length - 2) {
-        this.allBlocks[bodyBlockIndex].classList.add('snake');
-      } else {
-        this.allBlocks[bodyBlockIndex].classList.add('tail');
-      }
+    this.moveSnake({
+      prevHeadPosition,
+      currentHeadPosition,
     });
 
     const currentBlockClasses = this.allBlocks[currentHeadPosition].classList;
@@ -342,14 +326,44 @@ class Snake {
 
     const headBlockClasses = [...this.allBlocks[currentHeadPosition].classList];
     const headInTheWrongPosition =
-      headBlockClasses.includes('barrier') ||
-      headBlockClasses.includes('empty') ||
+      headBlockClasses.includes('hole') ||
       // snake's head on the one of her body blocks
       this.bodyItems.slice(1).find((index) => currentHeadPosition === index);
 
     if (headInTheWrongPosition) {
       this.lose();
+
+      return true;
     }
+
+    return false;
+  }
+
+  moveSnake(params) {
+    const { prevHeadPosition, currentHeadPosition } = params;
+
+    // move the head forward
+    this.allBlocks[prevHeadPosition].classList.remove('snake-head');
+    this.allBlocks[currentHeadPosition].classList.add('snake-head');
+    // update snake block indexes
+    this.bodyItems.unshift(currentHeadPosition);
+    this.bodyItems[1] = prevHeadPosition;
+
+    const deletedBlockIndex = this.bodyItems[this.bodyItems.length - 1];
+
+    this.bodyItems.length -= 1;
+
+    this.allBlocks[deletedBlockIndex].classList.remove('snake');
+    this.allBlocks[deletedBlockIndex].classList.remove('tail');
+
+    // start from 1 because we've already moved the snake's head
+    this.bodyItems.slice(1).map((bodyBlockIndex, index) => {
+      if (index < this.bodyItems.length - 2) {
+        this.allBlocks[bodyBlockIndex].classList.add('snake');
+      } else {
+        this.allBlocks[bodyBlockIndex].classList.add('tail');
+      }
+    });
   }
 
   setScore(newScore) {
@@ -359,10 +373,7 @@ class Snake {
     if (this.score && !(this.score % 5)) {
       this.increaseSpeed();
       this.field.generateNewStuff({
-        className: 'barrier',
-      });
-      this.field.generateNewStuff({
-        className: 'empty',
+        className: 'hole',
       });
     }
   }
@@ -383,13 +394,13 @@ class Snake {
 // ***************************************
 
 const gameField = new GameField({
-  size: 17,
+  size: 19,
 });
 
 const snake = new Snake({
   field: gameField,
   life: 3,
-  speed: 200,
+  speed: 180,
 });
 
 snake.begin();

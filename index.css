@@ -40,8 +40,6 @@ body {
   --dark: #212529;
   --black: #000;
   --transparent-black: #0001;
-  --transparent-white: #fff5;
-  --dangerous-color: #ff5656;
   --snake-color: var(--dark);
   --snake-shadow-color: var(--light);
   --point-color: #00d463;
@@ -60,8 +58,7 @@ body {
   font-family: 'Fredericka the Great', 'Courier New', Courier, monospace;
   letter-spacing: 0.1em;
   color: var(--color);
-  transition: 0.2s;
-  background-image: linear-gradient(to top, #a4caee 0%, #eeeeee 100%);
+  background-image: linear-gradient(to top, #aba4ee 0%, #d8efff 100%);
 }
 
 /* --------------------------------- */
@@ -112,32 +109,31 @@ header .description {
   width: 42em;
   height: 42em;
   display: grid;
-  grid-template-columns: repeat(17, 1fr);
-  grid-template-rows: repeat(17, 1fr);
-  column-gap: 0.2em;
-  row-gap: 0.2em;
+  grid-template-columns: repeat(19, 1fr);
+  grid-template-rows: repeat(19, 1fr);
+  column-gap: 0.1em;
+  row-gap: 0.1em;
 }
 
 .game-field .block {
   border-radius: 0.6em;
   box-shadow: 0 0 1em var(--transparent-black);
   background-color: var(--field-block-background);
-  transition: 0.2s;
+  transition: 0.4s;
 }
 
-.game-field .block.barrier,
 .game-field .block.tail,
 .game-field .block.snake,
 .game-field .block.snake-head,
 .game-field .block.point.snake-head {
   position: relative;
   background-color: var(--snake-color);
-  transition: 0.2s;
+  transition: 0.4s;
 }
 
 .game-field .block.snake-head,
 .game-field .block.point.snake-head {
-  transition: 0.2s;
+  transition: 0.1s;
 }
 
 .game-field .block.tail {
@@ -156,14 +152,6 @@ header .description {
   background-color: var(--background-color);
 }
 
-.game-field .block.barrier {
-  border-radius: 50%;
-  box-shadow: inset 0 0 1em var(--color);
-  background-color: var(--dangerous-color);
-  animation-name: blink;
-  animation: 1s blink infinite;
-}
-
 .game-field .block.point {
   transform: scale(0.8);
   border-radius: 50%;
@@ -171,19 +159,9 @@ header .description {
   background-color: var(--point-color);
 }
 
-.game-field .block.empty {
+.game-field .block.hole {
   box-shadow: none;
   background-color: transparent;
-}
-
-@keyframes blink {
-  0%,
-  100% {
-    transform: scale(0.5);
-  }
-  50% {
-    transform: scale(0.7);
-  }
 }
 
 /* --------------------------------- */
