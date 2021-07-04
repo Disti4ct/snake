@@ -109,8 +109,6 @@ header .description {
   width: 42em;
   height: 42em;
   display: grid;
-  grid-template-columns: repeat(19, 1fr);
-  grid-template-rows: repeat(19, 1fr);
   column-gap: 0.1em;
   row-gap: 0.1em;
 }
@@ -119,7 +117,7 @@ header .description {
   border-radius: 0.6em;
   box-shadow: 0 0 1em var(--transparent-black);
   background-color: var(--field-block-background);
-  transition: 0.4s;
+  transition: 0.14s;
 }
 
 .game-field .block.tail,
@@ -128,16 +126,16 @@ header .description {
 .game-field .block.point.snake-head {
   position: relative;
   background-color: var(--snake-color);
-  transition: 0.4s;
+  transition: 0.14s;
 }
 
 .game-field .block.snake-head,
 .game-field .block.point.snake-head {
-  transition: 0.1s;
+  transition: 0.08s;
 }
 
 .game-field .block.tail {
-  transform: scale(0.6);
+  transform: scale(0.7);
 }
 
 .game-field .block.snake-head::before {

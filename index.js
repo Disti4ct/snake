@@ -17,6 +17,16 @@ class GameField {
   }
 
   fill() {
+    const gameField = document.querySelector('.game-field');
+
+    gameField.setAttribute(
+      'style',
+      `
+      grid-template-columns: repeat(${this.size}, 1fr);
+      grid-template-rows: repeat(${this.size}, 1fr);
+      `
+    );
+
     for (let i = 1; i <= this.areaSize; i += 1) {
       const block = document.createElement('div');
 
@@ -394,7 +404,7 @@ class Snake {
 // ***************************************
 
 const gameField = new GameField({
-  size: 19,
+  size: 21,
 });
 
 const snake = new Snake({
